@@ -126,7 +126,7 @@ export default function BenchmarkChart({
             tooltip: {
               callbacks: {
                 label: (ctx) =>
-                  `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(0)} unites`,
+                  `${ctx.dataset.label}: ${(ctx.parsed.y ?? 0).toFixed(0)} unites`,
               },
             },
           },
@@ -135,7 +135,7 @@ export default function BenchmarkChart({
               title: {
                 display: true,
                 text: "Demande (unites)",
-                font: { weight: "300" },
+                font: { weight: "normal" },
               },
               grid: { color: "#F0F0F2" },
             },
