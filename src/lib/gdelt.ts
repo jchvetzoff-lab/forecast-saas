@@ -25,33 +25,45 @@ function categorize(tone: number): GdeltEvent["category"] {
 }
 
 export async function fetchGdeltEvents(): Promise<GdeltEvent[]> {
-  const query = QUERIES.join(" OR ")
-  const url = `${GDELT_API}?query=${encodeURIComponent(query)}&mode=ArtList&maxrecords=15&format=json&sort=DateDesc`
+  try {
+    const query = QUERIES.join(" OR ")
+    const url = `${GDELT_API}?query=${encodeURIComponent(query)}&mode=ArtList&maxrecords=15&format=json&sort=DateDesc`
 
-  const res = await fetch(url, { next: { revalidate: 3600 } })
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 8000)
 
-  if (!res.ok) {
-    return getFallbackEvents()
-  }
+    const res = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+    clearTimeout(timeout)
 
-  const data = await res.json()
-  const articles: GdeltArticle[] = data?.articles ?? []
-
-  if (articles.length === 0) {
-    return getFallbackEvents()
-  }
-
-  return articles.slice(0, 10).map((a) => {
-    const tone = parseFloat(a.tone?.split(",")[0] ?? "0")
-    return {
-      title: a.title,
-      url: a.url,
-      source: a.source,
-      date: a.seendate,
-      tone,
-      category: categorize(tone),
+    if (!res.ok) {
+      return getFallbackEvents()
     }
-  })
+
+    const data = await res.json()
+    const articles: GdeltArticle[] = data?.articles ?? []
+
+    if (articles.length === 0) {
+      return getFallbackEvents()
+    }
+
+    return articles.slice(0, 10).map((a) => {
+      const tone = parseFloat(a.tone?.split(",")[0] ?? "0")
+      return {
+        title: a.title,
+        url: a.url,
+        source: a.source,
+        date: a.seendate,
+        tone,
+        category: categorize(tone),
+      }
+    })
+  } catch {
+    // Timeout, DNS, ou erreur reseau → fallback
+    return getFallbackEvents()
+  }
 }
 
 function getFallbackEvents(): GdeltEvent[] {

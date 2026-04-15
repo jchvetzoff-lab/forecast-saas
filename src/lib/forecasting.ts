@@ -78,32 +78,35 @@ export function omnicast(demand: number[]): number[] {
   let beta = 0.1
 
   // Etape 2 : Apprendre la saisonnalite sur les 12 premiers mois
-  const seasonalIndex: number[] = new Array(12).fill(1)
-  if (n >= 12) {
-    const avg12 = demand.slice(0, 12).reduce((a, b) => a + b, 0) / 12
-    for (let m = 0; m < 12; m++) {
-      seasonalIndex[m] = demand[m] / avg12
+  const period = Math.min(12, n)
+  const seasonalIndex: number[] = new Array(period).fill(1)
+  if (n >= period) {
+    const avg = demand.slice(0, period).reduce((a, b) => a + b, 0) / period
+    if (avg > 0) {
+      for (let m = 0; m < period; m++) {
+        seasonalIndex[m] = Math.max(0.1, demand[m] / avg) // Plancher a 0.1 pour eviter division par zero
+      }
     }
   }
 
   for (let t = 1; t < n; t++) {
-    const month = t % 12
-    const seasonal = seasonalIndex[month]
+    const month = t % period
+    const seasonal = seasonalIndex[month] || 1
 
     // Detection de choc : ecart > 25% par rapport au forecast precedent
-    const expectedBase = (level[t - 1] + trend[t - 1])
+    const expectedBase = level[t - 1] + trend[t - 1]
     const expected = expectedBase * seasonal
-    const surprise = Math.abs(demand[t - 1] - expected) / expected
+    const surprise = expected > 0 ? Math.abs(demand[t - 1] - expected) / expected : 0
 
     // Adapter alpha en cas de choc : reagir plus vite
     if (surprise > 0.25) {
-      alpha = Math.min(0.7, alpha + 0.2) // Augmenter la reactivite
+      alpha = Math.min(0.7, alpha + 0.2)
     } else {
-      alpha = Math.max(0.25, alpha - 0.02) // Revenir a la normale progressivement
+      alpha = Math.max(0.25, alpha - 0.02)
     }
 
     // DES adaptatif desaisonnalise
-    const deseasoned = demand[t] / seasonal
+    const deseasoned = seasonal > 0.01 ? demand[t] / seasonal : demand[t]
     const newLevel = alpha * deseasoned + (1 - alpha) * (level[t - 1] + trend[t - 1])
     const newTrend = beta * (newLevel - level[t - 1]) + (1 - beta) * trend[t - 1]
     level.push(newLevel)
@@ -111,15 +114,15 @@ export function omnicast(demand: number[]): number[] {
 
     // Forecast = (level + trend) * saisonnalite
     const baseForecast = (level[t - 1] + trend[t - 1]) * seasonal
-    forecast.push(baseForecast)
+    forecast.push(Math.max(0, baseForecast)) // Pas de forecast negatif
   }
 
   // Etape 3 : Simulation de l'anticipation GDELT
   // En production : signal detecte 1-2 periodes AVANT le choc
   // Ici : on detecte le debut du choc et on corrige plus vite que DES
   for (let t = 2; t < n; t++) {
-    const dropRate = (demand[t] - demand[t - 1]) / demand[t - 1]
-    const prevDropRate = (demand[t - 1] - demand[t - 2]) / demand[t - 2]
+    const dropRate = demand[t - 1] > 0 ? (demand[t] - demand[t - 1]) / demand[t - 1] : 0
+    const prevDropRate = demand[t - 2] > 0 ? (demand[t - 1] - demand[t - 2]) / demand[t - 2] : 0
 
     // Si deux baisses consecutives > 10% → signal de crise
     if (dropRate < -0.10 && prevDropRate < -0.10) {
