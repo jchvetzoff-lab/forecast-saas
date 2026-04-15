@@ -1,8 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAFAFA;
+  --foreground: #1a1a2e;
+  --accent: #2563EB;
+  --accent-light: #EFF6FF;
+  --green: #059669;
+  --green-bg: #ECFDF5;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --orange: #D97706;
+  --orange-bg: #FFFBEB;
+  --purple: #7C3AED;
+  --purple-bg: #F5F3FF;
+  --cyan: #0891B2;
+  --cyan-bg: #ECFEFF;
+  --border: #E5E7EB;
+  --text2: #555770;
+  --text3: #8E8EA0;
 }
 
 @theme inline {
@@ -12,15 +27,67 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 250;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scroll via Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto; }
+
+/* Fade up entrance */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reveal on scroll — CSS-driven via IntersectionObserver */
+.reveal-on-scroll {
+  opacity: 0 !important;
+  transform: translateY(20px) !important;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.reveal-on-scroll.visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+.reveal-on-scroll:nth-child(2) { transition-delay: 0.08s; }
+.reveal-on-scroll:nth-child(3) { transition-delay: 0.16s; }
+.reveal-on-scroll:nth-child(4) { transition-delay: 0.24s; }
+.reveal-on-scroll:nth-child(5) { transition-delay: 0.32s; }
+.reveal-on-scroll:nth-child(6) { transition-delay: 0.4s; }
+
+/* Scroll indicator animation */
+@keyframes scrollDown {
+  0% { top: -50%; }
+  100% { top: 150%; }
+}
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Gauge needle */
+@keyframes needleSwing {
+  0% { transform: rotate(-90deg); }
+  100% { transform: rotate(30deg); }
 }
