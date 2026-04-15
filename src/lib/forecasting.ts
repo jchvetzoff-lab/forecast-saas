@@ -140,7 +140,7 @@ export function omnicast(demand: number[]): number[] {
   return forecast
 }
 
-export type MethodName = "Naive" | "MA(6)" | "SES (α=0.2)" | "DES (α=0.3)" | "OmniCast"
+export type MethodName = "Naive" | "MA(6)" | "SES (α=0.2)" | "DES (α=0.3)" | "OmniCast" | "Chronos-2"
 
 export interface ForecastResult {
   name: MethodName
