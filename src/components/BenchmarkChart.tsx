@@ -120,7 +120,7 @@ export default function BenchmarkChart({
               labels: {
                 usePointStyle: true,
                 padding: 16,
-                font: { size: 11, weight: "300" },
+                font: { size: 11 },
               },
             },
             tooltip: {
