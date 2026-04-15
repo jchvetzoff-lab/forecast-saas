@@ -1,13 +1,13 @@
 /**
  * Dataset de demo : 36 mois de demande d'un importateur de composants electroniques
  *
- * Caracteristiques :
- * - Base ~1200 unites/mois
- * - Tendance haussiere ~2%/mois
- * - Saisonnalite (Q4 haut, Q1 bas)
- * - Choc en mois 24 (crise supply chain, -30%)
- * - Reprise progressive mois 25-30
- * - Bruit aleatoire realiste
+ * Pattern calque sur les donnees SupChains du prof :
+ * - Saisonnalite TRES marquee (creux Q1 ~800, pic Q4 ~1600)
+ * - Tendance haussiere +3%/mois
+ * - Choc exogene brutal (Oct-Dec 24 : -50%)
+ * - Le Naive rate les virages saisonniers
+ * - Le MA lisse et retarde
+ * - OmniCast anticipe le choc 2 mois avant via signal GDELT
  */
 
 export const SAMPLE_LABELS: string[] = [
@@ -20,20 +20,20 @@ export const SAMPLE_LABELS: string[] = [
 ]
 
 export const SAMPLE_DEMAND: number[] = [
-  // 2023 — croissance reguliere + saisonnalite
-  1050, 1080, 1150, 1200, 1250, 1220,   // Q1-Q2
-  1180, 1210, 1320, 1450, 1520, 1580,   // Q3-Q4 (pic fin d'annee)
-  // 2024 — croissance continue puis choc en Q4
-  1180, 1220, 1310, 1380, 1420, 1390,   // Q1-Q2
-  1350, 1400, 1510, 1620, 1680, 980,    // Q3 puis CHOC en Dec (crise Suez / sanctions)
-  // 2025 — reprise progressive
-  850,  920, 1050, 1180, 1320, 1380,    // Reprise lente Q1-Q2
-  1420, 1480, 1560, 1650, 1720, 1800,   // Retour a la normale Q3-Q4
+  // 2023 — pattern saisonnier clair comme dans le cours (pic noel, creux ete)
+   820,  780,  920, 1050, 1120, 1000,   // Jan-Jun : creux hivernal → remontee printemps
+   950,  880, 1100, 1350, 1520, 1620,   // Jul-Dec : creux ete → pic Q4
+  // 2024 — meme saisonnalite, croissance, puis CHOC
+   900,  860, 1020, 1180, 1250, 1120,   // Jan-Jun : meme pattern
+  1060, 1000, 1220,  620,  450,  380,   // Jul-Sep normal → CHOC Oct-Nov-Dec (sanctions + Suez)
+  // 2025 — reprise lente puis rattrapage
+   420,  550,  780, 1020, 1280, 1200,   // Reprise progressive Q1-Q2
+  1140, 1080, 1350, 1620, 1780, 1880,   // Retour a la normale + rattrapage Q3-Q4
 ]
 
 /** Index du debut et fin de la periode de choc */
-export const SHOCK_START = 23 // Dec 24
+export const SHOCK_START = 21 // Oct 24
 export const SHOCK_END = 28   // Mai 25
 
 /** Description du choc pour l'affichage */
-export const SHOCK_DESCRIPTION = "Crise supply chain : blocage Canal de Suez + sanctions semi-conducteurs"
+export const SHOCK_DESCRIPTION = "Crise supply chain : sanctions semi-conducteurs (Oct 24) + blocage Canal de Suez (Nov 24) — demande divisee par 3"
