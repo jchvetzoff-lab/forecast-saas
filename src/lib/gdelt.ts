@@ -26,7 +26,7 @@ function categorize(tone: number): GdeltEvent["category"] {
 
 export async function fetchGdeltEvents(): Promise<GdeltEvent[]> {
   try {
-    const query = QUERIES.join(" OR ")
+    const query = "(" + QUERIES.join(" OR ") + ")"
     const url = `${GDELT_API}?query=${encodeURIComponent(query)}&mode=ArtList&maxrecords=15&format=json&sort=DateDesc`
 
     const controller = new AbortController()
