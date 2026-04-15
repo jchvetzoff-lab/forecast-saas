@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: omnicast-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    envVars:
+      - key: OLLAMA_URL
+        value: ""
+    healthCheckPath: /health
+    autoDeploy: true
